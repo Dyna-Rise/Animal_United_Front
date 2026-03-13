@@ -6,6 +6,8 @@ public class BossController : MonoBehaviour
     GameObject player; //検索対象
     public float range = 3.0f; //索敵範囲
 
+    public int life = 10;
+
     public float minX;
     public float maxX;
     public float outDisplayY;
@@ -23,6 +25,16 @@ public class BossController : MonoBehaviour
     Coroutine hangingCoroutine;
     Coroutine displayOutCoroutine;
 
+    [Header("ダメージ時間・ダメージ移動量")]
+    public float stunTime = 0.2f;
+    public float damageSpeed = 0.5f;
+
+    float damageTimer; //ダメージ時間を測るタイマー
+    bool isDamage; //ダメージフラグ
+
+    [Header("点滅対象")]
+    public GameObject enemyBody;
+
     void Start()
     {
         outDisplay = true;
@@ -32,7 +44,23 @@ public class BossController : MonoBehaviour
 
     void Update()
     {
-        if(!outDisplay && hangingCoroutine == null)
+        //ダメージ中なら減らす
+        if (damageTimer > 0)
+        {
+            damageTimer -= Time.deltaTime;
+
+            float val = Mathf.Sin(Time.time * 50);
+            if (val > 0) enemyBody.SetActive(true);
+            else enemyBody.SetActive(false);
+
+        }
+        else if (isDamage)
+        {
+            enemyBody.SetActive(true);
+            isDamage = false;
+        }
+
+        if (!outDisplay && hangingCoroutine == null)
         {
             hangingCoroutine = StartCoroutine(HangingCol());
         }
@@ -129,6 +157,23 @@ public class BossController : MonoBehaviour
 
         obj.GetComponent<Rigidbody>().AddForce(new Vector3(offsetX, offsetY, 0) * speed, ForceMode.Impulse);
 
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "PlayerAttack")
+        {
+            if (damageTimer <= 0 && !isDamage)
+            {
+                life--;
+                if (life <= 0)
+                {
+                    Destroy(gameObject);
+                }
+                damageTimer = stunTime;
+                isDamage = true;
+            }
+        }
     }
 
     private void OnDrawGizmosSelected()
