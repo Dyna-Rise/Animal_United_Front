@@ -5,6 +5,9 @@ public class PlayerHover : MonoBehaviour
 {
     [Header("参照")]
     public PlayerMove playerMove;
+    public CharacterController controller;
+
+    public GameObject playerGuard;
 
     [Header("ホバリング設定")]
     public float gravityLoss = 0.2f;
@@ -27,18 +30,50 @@ public class PlayerHover : MonoBehaviour
 
     void OnJump(InputValue value)
     {
-        
+        jumpButtonHeld = value.isPressed;
+    }
+    void OnInteract(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            if (controller.isGrounded)
+            {
+                SphereCollider[] cols = GetComponents<SphereCollider>();
+                foreach(SphereCollider sc in cols)
+                {
+                    sc.enabled = false;
+                }
+                playerGuard.SetActive(true);
+            }
+
+        }
+        else
+        {
+            SphereCollider[] cols = GetComponents<SphereCollider>();
+            foreach (SphereCollider sc in cols)
+            {
+                sc.enabled = true;
+            }
+            playerGuard.SetActive(false);
+
+        }
     }
 
     void Update()
     {
         if (playerMove == null || playerMove.MoveDirection == null) return;
 
+
+        //Debug.Log("isPressed:" + jumpButtonHeld);
         // Spaceキーの押下状態を直接取得
-        if (Keyboard.current != null)
-        {
-            jumpButtonHeld = Keyboard.current.spaceKey.isPressed;
-        }
+        //if (Keyboard.current != null)
+        //{
+        //    bool isSpacePressed = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
+        //    bool isGamepadPressed = Gamepad.current != null && Gamepad.current.buttonSouth.isPressed;
+
+        //    jumpButtonHeld = isSpacePressed || isGamepadPressed;
+        //}
+        //}
 
         // Debug.Log(jumpButtonHeld); // デバッグ用
 
