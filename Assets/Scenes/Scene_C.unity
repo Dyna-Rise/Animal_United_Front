@@ -619,8 +619,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   playerMove: {fileID: 0}
-  gravityLoss: 0.2
-  upForce: 4
+  gravityLoss: 0.8
+  initialUpForce: 2
+  maxUpForce: 30
+  upForceIncreaseRate: 28
   hoverTime: 1.5
 --- !u!1001 &381889380208427184
 PrefabInstance:
