@@ -1,116 +1,106 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerHover : MonoBehaviour
 {
-    [Header("参照")]
-    public PlayerMove playerMove;
-    public CharacterController controller;
+    //コンポーネント系
+    PlayerMove playerMove;
+    CharacterController controller;
 
+    [Header("ガードオブジェクト")]
     public GameObject playerGuard;
 
-    [Header("ホバリング設定")]
-    public float gravityLoss = 0.2f;
-    public float initialUpForce = 1.0f; // ホバリング開始時の初期上昇力
-    public float maxUpForce = 5.0f;     // 上昇力の最大値
-    public float upForceIncreaseRate = 1.0f; // 1秒あたりの上昇力増加量
+    [Header("重力カット")]
+    public float gravityLoss = 0.9f;
+
+    [Header("初期上昇力・最大上昇力")]
+    public float initialUpForce = 2.0f;
+    public float maxUpForce = 30.0f;
+
+    [Header("１秒当たりの上昇力")]
+    public float upForceRate = 25.0f; // 1秒あたりの上昇力増加量
+
+    [Header("ホバリング時間")]
     public float hoverTime = 1.5f;
 
-    private bool isHovering = false;
-    private float currentHoverTime = 0f;
-    private bool jumpButtonHeld = false; // ジャンプボタンが押され続けているか
+    float currentHoverTime = 0f; //ホバー経過時間
+    bool jumpButtonHold = false; // ジャンプボタンフラグ
 
     void Awake()
     {
-        if (playerMove == null)
+        playerMove = GetComponent<PlayerMove>();
+        controller = GetComponent<CharacterController>();
+    }
+
+    //ジャンプボタンが押されている間フラグを立てる
+    void OnJump(InputValue value)
+    {
+        jumpButtonHold = value.isPressed;
+    }
+
+    //インタクタボタンが押されている間ガードメソッド
+    void OnInteract(InputValue value)
+    {
+        Gourd(value.isPressed);
+    }
+
+    void Update()
+    {
+        Debug.Log(controller.isGrounded);
+
+        // 地面にいる場合はホバリング時間をリセット
+        if (controller.isGrounded)
         {
-            playerMove = GetComponent<PlayerMove>();
+            currentHoverTime = 0f;
+        }
+
+        //ジャンプボタン　&　空中　& ホバー時間が残っている
+        if (jumpButtonHold && !controller.isGrounded && currentHoverTime < hoverTime)
+        {
+            currentHoverTime += Time.deltaTime; //ホバー時間が経過
+
+            // 経過時間に応じてupForceを計算
+            float currentUpForce = initialUpForce + (upForceRate * currentHoverTime);
+            currentUpForce = Mathf.Clamp(currentUpForce, initialUpForce, maxUpForce); // 最大値でクランプ
+
+            // PlayerのMoveDirectionを取得
+            Vector3 currentMoveDirection = playerMove.MoveDirection;
+
+            //playerMoveの重力を変数gravityLossの分だけカットして弱める
+            float effectiveGravity = playerMove.gravity * (1f - gravityLoss);
+
+            currentMoveDirection.y -= effectiveGravity * Time.deltaTime; //弱めた重力を計算に混ぜる
+            currentMoveDirection.y += currentUpForce * Time.deltaTime; // さらに上昇力も計算に混ぜる
+
+            playerMove.SetMoveDirectionY(currentMoveDirection.y); // PlayerMoveのmoveDirectionを上書きし続ける
         }
     }
 
-    void OnJump(InputValue value)
-    {
-        jumpButtonHeld = value.isPressed;
-    }
-    void OnInteract(InputValue value)
-    {
-        if (value.isPressed)
+    //ガードメソッド
+    public void Gourd(bool btn)
+    {        
+        if (btn && controller.isGrounded)
         {
-            if (controller.isGrounded)
+            playerMove.enabled = false;　//PlayerMove無効
+            playerGuard.SetActive(true);　//ガードオブジェクトを出す
+            //コライダーを全て無効にする
+            SphereCollider[] cols = GetComponents<SphereCollider>();
+            foreach (SphereCollider sc in cols)
             {
-                SphereCollider[] cols = GetComponents<SphereCollider>();
-                foreach(SphereCollider sc in cols)
-                {
-                    sc.enabled = false;
-                }
-                playerGuard.SetActive(true);
+                sc.enabled = false;
             }
-
         }
         else
         {
+            playerMove.enabled = true;//PlayerMove有効
+            playerGuard.SetActive(false);//ガードオブジェクトを隠す
+            //コライダーを全て復活
             SphereCollider[] cols = GetComponents<SphereCollider>();
             foreach (SphereCollider sc in cols)
             {
                 sc.enabled = true;
             }
-            playerGuard.SetActive(false);
-
         }
-    }
-
-    void Update()
-    {
-        if (playerMove == null || playerMove.MoveDirection == null) return;
-
-
-        //Debug.Log("isPressed:" + jumpButtonHeld);
-        // Spaceキーの押下状態を直接取得
-        //if (Keyboard.current != null)
-        //{
-        //    bool isSpacePressed = Keyboard.current != null && Keyboard.current.spaceKey.isPressed;
-        //    bool isGamepadPressed = Gamepad.current != null && Gamepad.current.buttonSouth.isPressed;
-
-        //    jumpButtonHeld = isSpacePressed || isGamepadPressed;
-        //}
-        //}
-
-        // Debug.Log(jumpButtonHeld); // デバッグ用
-
-        // 地面にいる場合はホバリング状態をリセット
-        if (playerMove.GetComponent<CharacterController>().isGrounded)
-        {
-            isHovering = false;
-            currentHoverTime = 0f;
-        }
-
-        if (jumpButtonHeld && !playerMove.GetComponent<CharacterController>().isGrounded && currentHoverTime < hoverTime /* && playerMove.MoveDirection.y < 0 */)
-        {
-            isHovering = true;
-            currentHoverTime += Time.deltaTime;
-
-            // 経過時間に応じてupForceを計算
-            float currentUpForce = initialUpForce + (upForceIncreaseRate * currentHoverTime);
-            currentUpForce = Mathf.Min(currentUpForce, maxUpForce); // 最大値でクランプ
-
-            // ホバリング中は落下速度を軽減し、わずかに上昇力を加える
-            Vector3 currentMoveDirection = playerMove.MoveDirection;
-
-            float effectiveGravity = playerMove.gravity * (1f - gravityLoss);
-            currentMoveDirection.y -= effectiveGravity * Time.deltaTime; // 重力軽減
-
-            currentMoveDirection.y += currentUpForce * Time.deltaTime; // 計算した上昇力を適用
-
-            playerMove.SetMoveDirectionY(currentMoveDirection.y); // PlayerMoveのmoveDirectionを上書き
-        }
-        else
-        {
-            isHovering = false;
-        }
-    }
-
-    public bool IsHovering
-    {
-        get { return isHovering; }
     }
 }
