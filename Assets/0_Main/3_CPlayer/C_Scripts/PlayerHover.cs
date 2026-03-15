@@ -47,8 +47,6 @@ public class PlayerHover : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(controller.isGrounded);
-
         // 地面にいる場合はホバリング時間をリセット
         if (controller.isGrounded)
         {
