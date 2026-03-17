@@ -36,7 +36,7 @@ public class Enemy4Controller : MonoBehaviour
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("PlayerFollower");
         toGuard = true; //最初はガードから
     }
 

@@ -85,7 +85,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Radius: 0.53
   m_Center: {x: 0, y: 0, z: 0}
@@ -192,6 +192,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   knockbackForce: 8
   knockbackDuration: 0.2
+  invincibilityTime: 1.5
+  targetBody: {fileID: 6835395834942537767}
 --- !u!114 &6271044113034819628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,13 +206,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb1b3f649c7129644ab87d4b57a4729f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  playerMove: {fileID: 2190920226083763690}
-  controller: {fileID: 7148322993915633623}
   playerGuard: {fileID: 4307101136407353447}
   gravityLoss: 0.8
   initialUpForce: 2
   maxUpForce: 30
-  upForceIncreaseRate: 28
+  upForceRate: 25
   hoverTime: 1.5
 --- !u!1 &5377052851155731982
 GameObject:

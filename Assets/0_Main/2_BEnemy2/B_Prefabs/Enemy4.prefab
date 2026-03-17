@@ -130,6 +130,9 @@ MonoBehaviour:
   gate: {fileID: 8651007472879751197}
   guardPrefab: {fileID: 2429707371381502013, guid: c3550d044bd09e74d81251b515544601, type: 3}
   guardGate: {fileID: 5141511002607930954}
+  stunTime: 0.2
+  damageSpeed: 0.5
+  enemyBody: {fileID: 7186237484635719201}
 --- !u!1 &5141511002607930954
 GameObject:
   m_ObjectHideFlags: 0

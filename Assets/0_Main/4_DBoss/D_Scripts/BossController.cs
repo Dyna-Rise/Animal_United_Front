@@ -39,7 +39,7 @@ public class BossController : MonoBehaviour
     {
         outDisplay = true;
         currentY = topY;
-        player = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("PlayerFollower");
     }
 
     void Update()
