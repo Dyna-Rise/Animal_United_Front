@@ -33,6 +33,11 @@ public class KnockbackHandler : MonoBehaviour
         //フラグがない時、Enemyに触れたら
         if (other.CompareTag("Enemy") && knockBackCoroutine == null && !isInvinciblility)
         {
+            GameManager.playerLife--;
+            if(GameManager.playerLife <= 0)
+            {
+                GameManager.gameState = GameState.gameover;
+            }
             // 敵との接触位置からノックバック方向を計算
             knockbackDirection = (transform.position - other.transform.position).normalized;
 

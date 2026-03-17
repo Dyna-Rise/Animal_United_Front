@@ -51,6 +51,13 @@ public class PlayerMove : MonoBehaviour
         moveDirection.y = yValue;
     }
 
+    //追加
+    public void SetMoveDirectionX(float xValue)
+    {
+        moveDirection.x = xValue;
+    }
+
+
     //移動ボタンのアクション
     void OnMove(InputValue value)
     {
@@ -210,5 +217,13 @@ public class PlayerMove : MonoBehaviour
     public void ReturnSpeed()
     {
         playerSpeed = initialSpeed;
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "StageGoal")
+        {
+            GameManager.gameState = GameState.stageclear;
+        }
     }
 }

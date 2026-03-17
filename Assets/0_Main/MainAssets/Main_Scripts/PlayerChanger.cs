@@ -14,19 +14,19 @@ public class PlayerChanger : MonoBehaviour
     [Header("チェンジキャラ")]
     public GameObject[] changePlayers; // インスペクターで設定する変更可能なプレハブ
 
+    [Header("切り替えエフェクト")]
+    public GameObject changeEffect;
+
     PlayerFollow playerFollow; //プレイヤーの位置追従
 
     // 変身可能時間の現在値
     float player2CurrentTime;
     float player3CurrentTime;
 
-
     GameObject player1, player2, player3;
     public bool isPlayer2, isPlayer3; //変身フラグ
 
-    // 変身中のカウントダウン用コルーチン
-    private Coroutine player2Coroutine;
-    private Coroutine player3Coroutine;
+    Coroutine gameOverCoroutine;
 
     void Awake()
     {
@@ -51,6 +51,11 @@ public class PlayerChanger : MonoBehaviour
                 changePlayers[0],
                 playerFollow.transform.position,
                 Quaternion.identity);
+            //エフェクトの発生
+            Instantiate(
+                changeEffect,
+                playerFollow.transform.position,
+                Quaternion.identity);
             StartCoroutine(PlayerFollowRest());
             isPlayer2 = true;
         }
@@ -65,6 +70,11 @@ public class PlayerChanger : MonoBehaviour
                 changePlayers[1],
                 playerFollow.transform.position,
                 Quaternion.identity);
+            //エフェクトの発生
+            Instantiate(
+                changeEffect,
+                playerFollow.transform.position,
+                Quaternion.identity);
             StartCoroutine(PlayerFollowRest());
             isPlayer3 = true;
         }
@@ -76,6 +86,11 @@ public class PlayerChanger : MonoBehaviour
         if(player3 != null)Destroy(player3);
         player1 = Instantiate(
             defaultPlayer,
+            playerFollow.transform.position,
+            Quaternion.identity);
+        //エフェクトの発生
+        Instantiate(
+            changeEffect,
             playerFollow.transform.position,
             Quaternion.identity);
         StartCoroutine(PlayerFollowRest());
@@ -128,5 +143,37 @@ public class PlayerChanger : MonoBehaviour
                 player3CurrentTime = player3TimeMax;
             }
         }
+
+        if(GameManager.gameState == GameState.gameover)
+        {
+            if(gameOverCoroutine == null)
+            {
+                gameOverCoroutine = StartCoroutine(GameOver());
+            }
+        }
     }
+
+   IEnumerator GameOver()
+   {
+        GameObject obj;
+        if(isPlayer2)
+        {
+            obj = player2;
+        }
+        else if (isPlayer3)
+        {
+            obj = player3;
+        }
+        else
+        {
+            obj = player1;
+        }
+
+        obj.GetComponent<SphereCollider>().enabled = false;
+        obj.GetComponent<PlayerMove>().SetMoveDirectionX(0);
+        obj.GetComponent<PlayerMove>().SetMoveDirectionY(0);
+
+        yield return new WaitForSeconds(1.0f);
+        Destroy(obj);
+   }
 }

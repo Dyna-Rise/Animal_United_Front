@@ -12,6 +12,7 @@ TagManager:
   - Item
   - SavePoint
   - PlayerRange
+  - StageGoal
   layers:
   - Default
   - TransparentFX
