@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerShoot : MonoBehaviour
 {
     PlayerMove playerMove;
+    AudioSource audio;
 
     [Header("生成プレハブ・位置")]
     public GameObject shotPrefabs;
@@ -15,6 +16,9 @@ public class PlayerShoot : MonoBehaviour
 
     [Header("スピード")]
     public float shotSpeed = 4.0f;
+
+    [Header("SE")]
+    public AudioClip shotClip;
 
     Coroutine shootCoroutine;
 
@@ -35,6 +39,8 @@ public class PlayerShoot : MonoBehaviour
 
     IEnumerator ShootCol()
     {
+        audio.PlayOneShot(shotClip);
+
         GameObject obj = Instantiate(
             shotPrefabs,
             gate.transform.position,
@@ -49,5 +55,6 @@ public class PlayerShoot : MonoBehaviour
     void Start()
     {
         playerMove = GetComponent<PlayerMove>();
+        audio = GetComponent<AudioSource>();
     }
 }

@@ -124,7 +124,7 @@ public class BossController : MonoBehaviour
 
     void BossSlash()
     {
-        Debug.Log("接近");
+        //Debug.Log("接近");
         float dx = player.transform.position.x - transform.position.x;
         float dy = player.transform.position.y - transform.position.y;
         float angle = Mathf.Atan2(dy, dx);
@@ -141,7 +141,7 @@ public class BossController : MonoBehaviour
 
     void BossShoot()
     {
-        Debug.Log("ショット");
+        //Debug.Log("ショット");
         float dx = player.transform.position.x - transform.position.x;
         float dy = player.transform.position.y - transform.position.y;
         float angle = Mathf.Atan2(dy, dx);
@@ -168,6 +168,7 @@ public class BossController : MonoBehaviour
                 life--;
                 if (life <= 0)
                 {
+                    GameManager.gameState = GameState.gameclear;
                     Destroy(gameObject);
                 }
                 damageTimer = stunTime;
